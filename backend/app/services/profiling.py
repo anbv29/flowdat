@@ -8,8 +8,29 @@ import duckdb
 
 from app.core.errors import AppError
 
-NUMERIC_TYPES = {"TINYINT", "SMALLINT", "INTEGER", "BIGINT", "HUGEINT", "UTINYINT", "USMALLINT", "UINTEGER", "UBIGINT", "FLOAT", "DOUBLE", "DECIMAL", "REAL"}
-DATE_TYPES = {"DATE", "TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP_NS", "TIMESTAMP_MS", "TIMESTAMP_S"}
+NUMERIC_TYPES = {
+    "TINYINT",
+    "SMALLINT",
+    "INTEGER",
+    "BIGINT",
+    "HUGEINT",
+    "UTINYINT",
+    "USMALLINT",
+    "UINTEGER",
+    "UBIGINT",
+    "FLOAT",
+    "DOUBLE",
+    "DECIMAL",
+    "REAL",
+}
+DATE_TYPES = {
+    "DATE",
+    "TIMESTAMP",
+    "TIMESTAMP WITH TIME ZONE",
+    "TIMESTAMP_NS",
+    "TIMESTAMP_MS",
+    "TIMESTAMP_S",
+}
 
 
 def quote_identifier(value: str) -> str:
@@ -18,7 +39,11 @@ def quote_identifier(value: str) -> str:
 
 def profile_dataset(source: Path) -> dict[str, Any]:
     database_path = source.with_suffix(".duckdb")
-    loader = "read_csv_auto(?, sample_size = -1, normalize_names = false)" if source.suffix == ".csv" else "read_parquet(?)"
+    loader = (
+        "read_csv_auto(?, sample_size = -1, normalize_names = false)"
+        if source.suffix == ".csv"
+        else "read_parquet(?)"
+    )
 
     try:
         with duckdb.connect(str(database_path)) as connection:
@@ -27,7 +52,9 @@ def profile_dataset(source: Path) -> dict[str, Any]:
             schema = connection.execute("DESCRIBE dataset").fetchall()
             row_count = connection.execute("SELECT COUNT(*) FROM dataset").fetchone()[0]
             columns = [
-                _profile_column(connection, name=row[0], data_type=row[1], row_count=row_count, position=index)
+                _profile_column(
+                    connection, name=row[0], data_type=row[1], row_count=row_count, position=index
+                )
                 for index, row in enumerate(schema)
             ]
             preview_rows = connection.execute("SELECT * FROM dataset LIMIT 8").fetchall()
@@ -44,7 +71,10 @@ def profile_dataset(source: Path) -> dict[str, Any]:
         "row_count": row_count,
         "column_count": len(columns),
         "columns": columns,
-        "preview": [dict(zip(names, (_json_value(value) for value in row), strict=True)) for row in preview_rows],
+        "preview": [
+            dict(zip(names, (_json_value(value) for value in row), strict=True))
+            for row in preview_rows
+        ],
         "duckdb_path": str(database_path),
     }
 
@@ -70,7 +100,12 @@ def _profile_column(
         minimum, maximum, mean, median = connection.execute(
             f"SELECT MIN({column}), MAX({column}), AVG({column}), MEDIAN({column}) FROM dataset"
         ).fetchone()
-        statistics.update(min=_json_value(minimum), max=_json_value(maximum), mean=_json_value(mean), median=_json_value(median))
+        statistics.update(
+            min=_json_value(minimum),
+            max=_json_value(maximum),
+            mean=_json_value(mean),
+            median=_json_value(median),
+        )
     elif base_type in DATE_TYPES:
         minimum, maximum = connection.execute(
             f"SELECT MIN({column}), MAX({column}) FROM dataset"
@@ -95,9 +130,15 @@ def _profile_column(
 
 def _semantic_type(name: str, data_type: str, distinct_count: int, row_count: int) -> str:
     lowered = name.lower()
-    if data_type in DATE_TYPES or any(token in lowered for token in ("date", "time", "month", "year")):
+    if data_type in DATE_TYPES or any(
+        token in lowered for token in ("date", "time", "month", "year")
+    ):
         return "date"
-    if lowered == "id" or lowered.endswith("_id") or (row_count > 0 and distinct_count == row_count):
+    if (
+        lowered == "id"
+        or lowered.endswith("_id")
+        or (row_count > 0 and distinct_count == row_count)
+    ):
         return "identifier"
     if data_type in NUMERIC_TYPES:
         return "measure"

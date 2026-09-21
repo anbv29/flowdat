@@ -10,8 +10,12 @@ test-results/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.test-tmp/
+.verified-test-tmp/
+pytest-cache-files-*/
 .ruff_cache/
 .venv/
+*.egg-info/
 
 # local state
 .env

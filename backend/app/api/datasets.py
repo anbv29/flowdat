@@ -1,3 +1,4 @@
+import shutil
 import uuid
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from app.services.files import clean_display_name, store_upload
 from app.services.profiling import profile_dataset
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
+SAMPLE_STORAGE_KEY = "sample-ecommerce.csv"
 
 
 @router.post("", response_model=DatasetDetail, status_code=status.HTTP_201_CREATED)
@@ -55,7 +57,45 @@ async def upload_dataset(
 def list_datasets(db: Session = Depends(get_db)) -> DatasetListResponse:
     items = db.scalars(select(Dataset).order_by(Dataset.updated_at.desc())).all()
     total = db.scalar(select(func.count()).select_from(Dataset)) or 0
-    return DatasetListResponse(items=[DatasetSummary.model_validate(item) for item in items], total=total)
+    return DatasetListResponse(
+        items=[DatasetSummary.model_validate(item) for item in items], total=total
+    )
+
+
+@router.post("/sample", response_model=DatasetDetail, status_code=status.HTTP_201_CREATED)
+def explore_sample_dataset(
+    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+) -> DatasetDetail:
+    existing = db.scalar(
+        select(Dataset)
+        .options(selectinload(Dataset.columns))
+        .where(Dataset.storage_key == SAMPLE_STORAGE_KEY)
+    )
+    if existing:
+        return _detail(existing)
+
+    source = Path(__file__).parents[2] / "data" / "ecommerce_orders.csv"
+    settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    destination = settings.upload_dir / SAMPLE_STORAGE_KEY
+    shutil.copyfile(source, destination)
+    profile = profile_dataset(destination)
+    dataset = Dataset(
+        name="Ecommerce orders",
+        description="Six months of orders across regions, channels, and product categories.",
+        original_filename="ecommerce_orders.csv",
+        storage_key=SAMPLE_STORAGE_KEY,
+        media_type="text/csv",
+        size_bytes=destination.stat().st_size,
+        row_count=profile["row_count"],
+        column_count=profile["column_count"],
+        profile_status="ready",
+        profile={"preview": profile["preview"], "duckdb_path": profile["duckdb_path"]},
+    )
+    dataset.columns = [DatasetColumn(**column) for column in profile["columns"]]
+    db.add(dataset)
+    db.commit()
+    db.refresh(dataset)
+    return _detail(dataset)
 
 
 @router.get("/{dataset_id}", response_model=DatasetDetail)

@@ -48,7 +48,9 @@ async def store_upload(upload: UploadFile, upload_dir: Path, max_bytes: int) -> 
     destination = (upload_dir / storage_key).resolve()
     root = upload_dir.resolve()
     if root not in destination.parents:
-        raise AppError("invalid_storage_path", "The upload could not be stored safely.", status_code=500)
+        raise AppError(
+            "invalid_storage_path", "The upload could not be stored safely.", status_code=500
+        )
 
     size = 0
     try:

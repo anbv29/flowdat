@@ -53,6 +53,12 @@ export function uploadDataset(
   });
 }
 
+export async function exploreSample(): Promise<Dataset> {
+  const response = await fetch(`${API_URL}/datasets/sample`, { method: "POST" });
+  if (!response.ok) throw new Error(await responseMessage(response));
+  return response.json() as Promise<Dataset>;
+}
+
 async function responseMessage(response: Response) {
   try {
     const payload = (await response.json()) as ApiError;

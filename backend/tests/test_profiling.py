@@ -5,7 +5,9 @@ from app.services.profiling import profile_dataset
 
 def test_profiles_csv_columns_and_statistics(tmp_path: Path) -> None:
     source = tmp_path / "orders.csv"
-    source.write_text("order_id,amount,ordered_at,region\n1,10,2026-01-01,North\n2,20,2026-01-02,South\n3,,2026-01-03,North\n")
+    source.write_text(
+        "order_id,amount,ordered_at,region\n1,10,2026-01-01,North\n2,20,2026-01-02,South\n3,,2026-01-03,North\n"
+    )
 
     profile = profile_dataset(source)
 

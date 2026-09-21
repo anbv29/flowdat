@@ -4,11 +4,12 @@ import { ArrowRight, Clock3, Database, Rows3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { UploadDialog } from "@/components/upload-dialog";
 import { Button } from "@/components/ui/button";
-import { type Dataset, listDatasets } from "@/lib/api";
+import { type Dataset, exploreSample, listDatasets } from "@/lib/api";
 
 export function DatasetLibrary() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [sampleStatus, setSampleStatus] = useState<"idle" | "loading" | "error">("idle");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -23,6 +24,16 @@ export function DatasetLibrary() {
   function addDataset(dataset: Dataset) {
     setDatasets((current) => [dataset, ...current.filter((item) => item.id !== dataset.id)]);
     setStatus("ready");
+  }
+
+  async function openSample() {
+    setSampleStatus("loading");
+    try {
+      addDataset(await exploreSample());
+      setSampleStatus("idle");
+    } catch {
+      setSampleStatus("error");
+    }
   }
 
   return (
@@ -76,7 +87,9 @@ export function DatasetLibrary() {
           <strong>New to SignalDesk?</strong>
           <p>Open the ecommerce sample to see how profiles and analysis fit together.</p>
         </div>
-        <Button variant="secondary" size="small">Explore sample data</Button>
+        <Button variant="secondary" size="small" onClick={openSample} disabled={sampleStatus === "loading"}>
+          {sampleStatus === "loading" ? "Preparing sample…" : sampleStatus === "error" ? "Try sample again" : "Explore sample data"}
+        </Button>
       </aside>
     </>
   );

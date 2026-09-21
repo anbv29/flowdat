@@ -1,0 +1,41 @@
+order_id,ordered_at,customer_id,region,channel,category,product,quantity,unit_price,discount_pct,revenue,cost,status
+ORD-1001,2026-01-03,C-018,North,Web,Home,Oak desk lamp,2,58.00,0,116.00,61.00,Delivered
+ORD-1002,2026-01-04,C-041,West,Marketplace,Office,Linen notebook,4,14.50,10,52.20,25.60,Delivered
+ORD-1003,2026-01-06,C-007,South,Web,Audio,Studio headphones,1,129.00,0,129.00,72.00,Delivered
+ORD-1004,2026-01-09,C-052,East,Retail,Home,Wool throw,1,84.00,15,71.40,42.00,Returned
+ORD-1005,2026-01-13,C-029,North,Web,Office,Desk organiser,3,26.00,0,78.00,36.00,Delivered
+ORD-1006,2026-01-17,C-064,West,Web,Kitchen,Pour-over set,2,46.00,5,87.40,47.00,Delivered
+ORD-1007,2026-01-20,C-015,South,Marketplace,Audio,Compact speaker,1,96.00,0,96.00,58.00,Delivered
+ORD-1008,2026-01-25,C-083,East,Web,Office,Task light,2,72.00,10,129.60,78.00,Delivered
+ORD-1009,2026-02-02,C-011,North,Retail,Kitchen,Stoneware set,1,110.00,0,110.00,64.00,Delivered
+ORD-1010,2026-02-05,C-047,West,Web,Home,Cotton cushion,3,32.00,0,96.00,48.00,Delivered
+ORD-1011,2026-02-08,C-035,South,Web,Audio,Studio headphones,2,129.00,15,219.30,144.00,Delivered
+ORD-1012,2026-02-12,C-072,East,Marketplace,Office,Linen notebook,5,14.50,0,72.50,32.00,Delivered
+ORD-1013,2026-02-16,C-018,North,Web,Home,Wool throw,2,84.00,10,151.20,84.00,Delivered
+ORD-1014,2026-02-19,C-090,West,Retail,Kitchen,Chef knife,1,118.00,0,118.00,69.00,Delivered
+ORD-1015,2026-02-23,C-026,South,Web,Office,Desk organiser,2,26.00,5,49.40,24.00,Cancelled
+ORD-1016,2026-03-01,C-054,East,Web,Home,Oak desk lamp,1,58.00,0,58.00,30.50,Delivered
+ORD-1017,2026-03-04,C-068,North,Marketplace,Audio,Compact speaker,2,96.00,10,172.80,116.00,Delivered
+ORD-1018,2026-03-08,C-013,West,Web,Kitchen,Pour-over set,1,46.00,0,46.00,23.50,Delivered
+ORD-1019,2026-03-13,C-077,South,Retail,Home,Cotton cushion,4,32.00,15,108.80,64.00,Returned
+ORD-1020,2026-03-18,C-032,East,Web,Office,Task light,1,72.00,0,72.00,39.00,Delivered
+ORD-1021,2026-03-22,C-005,North,Web,Kitchen,Stoneware set,2,110.00,5,209.00,128.00,Delivered
+ORD-1022,2026-03-26,C-061,West,Marketplace,Office,Linen notebook,6,14.50,10,78.30,38.40,Delivered
+ORD-1023,2026-04-02,C-022,South,Web,Audio,Studio headphones,1,129.00,0,129.00,72.00,Delivered
+ORD-1024,2026-04-06,C-049,East,Web,Home,Wool throw,1,84.00,0,84.00,42.00,Delivered
+ORD-1025,2026-04-11,C-084,North,Retail,Kitchen,Chef knife,2,118.00,10,212.40,138.00,Delivered
+ORD-1026,2026-04-15,C-038,West,Web,Office,Desk organiser,4,26.00,5,98.80,48.00,Delivered
+ORD-1027,2026-04-19,C-071,South,Marketplace,Home,Oak desk lamp,2,58.00,0,116.00,61.00,Delivered
+ORD-1028,2026-04-24,C-016,East,Web,Audio,Compact speaker,1,96.00,15,81.60,58.00,Delivered
+ORD-1029,2026-05-03,C-057,North,Web,Home,Cotton cushion,2,32.00,0,64.00,32.00,Delivered
+ORD-1030,2026-05-07,C-009,West,Retail,Kitchen,Pour-over set,3,46.00,10,124.20,70.50,Delivered
+ORD-1031,2026-05-12,C-044,South,Web,Office,Task light,2,72.00,0,144.00,78.00,Delivered
+ORD-1032,2026-05-16,C-081,East,Marketplace,Kitchen,Stoneware set,1,110.00,5,104.50,64.00,Delivered
+ORD-1033,2026-05-21,C-024,North,Web,Audio,Studio headphones,2,129.00,10,232.20,144.00,Delivered
+ORD-1034,2026-05-25,C-066,West,Web,Home,Wool throw,1,84.00,0,84.00,42.00,Cancelled
+ORD-1035,2026-06-01,C-031,South,Retail,Office,Linen notebook,8,14.50,15,98.60,51.20,Delivered
+ORD-1036,2026-06-05,C-075,East,Web,Kitchen,Chef knife,1,118.00,0,118.00,69.00,Delivered
+ORD-1037,2026-06-10,C-019,North,Marketplace,Home,Oak desk lamp,3,58.00,10,156.60,91.50,Delivered
+ORD-1038,2026-06-14,C-053,West,Web,Office,Desk organiser,2,26.00,0,52.00,24.00,Delivered
+ORD-1039,2026-06-19,C-087,South,Web,Audio,Compact speaker,2,96.00,5,182.40,116.00,Returned
+ORD-1040,2026-06-24,C-012,East,Retail,Home,Cotton cushion,5,32.00,10,144.00,80.00,Delivered
