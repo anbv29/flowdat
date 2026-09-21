@@ -1,12 +1,11 @@
 import { AppShell } from "@/components/app-shell";
+import { DatasetLibrary } from "@/components/dataset-library";
 
 export default function Home() {
   return (
     <AppShell>
       <main className="content">
-        <p className="eyebrow">Workspace</p>
-        <h1>Your datasets</h1>
-        <p className="lede">Keep source files, profiles, and analysis together in one quiet workspace.</p>
+        <DatasetLibrary />
       </main>
     </AppShell>
   );
