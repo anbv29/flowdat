@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     frontend_origin: str = "http://localhost:3000"
     upload_dir: Path = Path("storage/uploads")
     max_upload_mb: int = Field(default=100, ge=1, le=1024)
+    max_result_rows: int = Field(default=500, ge=1, le=5000)
+    query_timeout_seconds: int = Field(default=10, ge=1, le=120)
     openai_api_key: str | None = None
     openai_model: str = "gpt-6-astra"
 
