@@ -186,6 +186,34 @@ h1 { margin: 0; font-family: var(--font-display), Georgia, serif; font-size: cla
 .skeleton-row span:nth-child(1) { width: 38px; }
 .skeleton-row span:nth-child(2) { width: 210px; }
 .skeleton-row span:nth-child(3) { width: 280px; }
+.dataset-content { max-width: 1220px; }
+.back-link { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 30px; color: var(--muted); font-size: 11px; font-weight: 600; transition: color 160ms ease, transform 160ms ease; }
+.back-link:hover { color: var(--ink); transform: translateX(-2px); }
+.dataset-titlebar { display: flex; align-items: end; justify-content: space-between; gap: 30px; }
+.dataset-kicker { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; color: #527f65; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.dataset-kicker .status-dot { margin: 0; }
+.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 36px; }
+.metric-card { display: flex; min-height: 90px; align-items: center; gap: 13px; padding: 17px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255, 255, 255, 0.42); box-shadow: inset 0 1px rgba(255, 255, 255, 0.65); backdrop-filter: blur(12px); }
+.metric-card > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 9px; color: var(--indigo); background: rgba(90, 95, 159, 0.09); }
+.metric-card p { margin: 0 0 4px; color: var(--muted); font-size: 10px; }
+.metric-card strong { font-family: var(--font-display), Georgia, serif; font-size: 23px; font-weight: 400; letter-spacing: -0.02em; }
+.overview-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr); gap: 16px; margin-top: 18px; }
+.glass-section { padding: 21px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255, 255, 255, 0.48); box-shadow: 0 16px 45px rgba(37, 43, 67, 0.045), inset 0 1px rgba(255, 255, 255, 0.72); backdrop-filter: blur(15px); }
+.panel-heading { display: flex; align-items: start; justify-content: space-between; color: var(--muted); }
+.panel-heading .eyebrow { margin-bottom: 7px; }
+.panel-heading h2 { margin: 0; color: var(--ink); font-size: 14px; font-weight: 650; }
+.profile-facts { display: grid; grid-template-columns: repeat(2, 1fr); margin: 19px 0 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.profile-facts > div { padding: 17px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.profile-facts dt, .source-facts dt { color: var(--muted); font-size: 10px; }
+.profile-facts dd { margin: 7px 0 0; font-size: 14px; font-weight: 650; }
+.source-facts { display: grid; gap: 13px; margin: 19px 0 0; }
+.source-facts > div { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 13px; border-top: 1px solid var(--line); }
+.source-facts dd { overflow: hidden; margin: 0; font-size: 11px; font-weight: 600; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.overview-loading { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-top: 100px; }
+.overview-loading span { height: 90px; border-radius: 13px; background: linear-gradient(90deg, rgba(90, 95, 159, 0.05), rgba(255, 255, 255, 0.65), rgba(90, 95, 159, 0.05)); background-size: 200% 100%; animation: shimmer 1.4s ease infinite; }
+.overview-error { display: flex; max-width: 480px; min-height: 55vh; margin: auto; align-items: center; justify-content: center; flex-direction: column; color: var(--muted); text-align: center; }
+.overview-error h1 { margin-top: 17px; color: var(--ink); font-size: 36px; }
+.overview-error p { margin: 12px 0 22px; font-size: 12px; line-height: 1.6; }
 @keyframes fade-in { from { opacity: 0; } }
 @keyframes dialog-in { from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.985); } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -201,4 +229,12 @@ h1 { margin: 0; font-family: var(--font-display), Georgia, serif; font-size: cla
   .dataset-row { grid-template-columns: auto 1fr auto; }
   .dataset-meta { grid-column: 2 / -1; flex-wrap: wrap; }
   .sample-callout { align-items: start; flex-direction: column; }
+  .dataset-titlebar { align-items: start; flex-direction: column; }
+  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .overview-grid { grid-template-columns: 1fr; }
+  .overview-loading { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 460px) {
+  .metric-grid { grid-template-columns: 1fr; }
 }

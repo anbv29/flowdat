@@ -12,6 +12,23 @@ export type Dataset = {
   updated_at: string;
 };
 
+export type DatasetColumn = {
+  name: string;
+  position: number;
+  data_type: string;
+  semantic_type: "identifier" | "measure" | "category" | "date";
+  nullable: boolean;
+  null_count: number;
+  distinct_count: number;
+  statistics: Record<string, string | number | null>;
+  sample_values: Array<string | number | boolean | null>;
+};
+
+export type DatasetDetail = Dataset & {
+  columns: DatasetColumn[];
+  preview: Array<Record<string, string | number | boolean | null>>;
+};
+
 type DatasetListResponse = { items: Dataset[]; total: number };
 type ApiError = { error?: { message?: string } };
 
@@ -22,6 +39,12 @@ export async function listDatasets(signal?: AbortSignal): Promise<Dataset[]> {
   if (!response.ok) throw new Error(await responseMessage(response));
   const payload = (await response.json()) as DatasetListResponse;
   return payload.items;
+}
+
+export async function getDataset(datasetId: string, signal?: AbortSignal): Promise<DatasetDetail> {
+  const response = await fetch(`${API_URL}/datasets/${datasetId}`, { signal, cache: "no-store" });
+  if (!response.ok) throw new Error(await responseMessage(response));
+  return response.json() as Promise<DatasetDetail>;
 }
 
 export function uploadDataset(

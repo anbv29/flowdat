@@ -2,11 +2,14 @@
 
 import { ArrowRight, Clock3, Database, Rows3 } from "lucide-react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { UploadDialog } from "@/components/upload-dialog";
 import { Button } from "@/components/ui/button";
 import { type Dataset, exploreSample, listDatasets } from "@/lib/api";
 
 export function DatasetLibrary() {
+  const router = useRouter();
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [sampleStatus, setSampleStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -24,6 +27,7 @@ export function DatasetLibrary() {
   function addDataset(dataset: Dataset) {
     setDatasets((current) => [dataset, ...current.filter((item) => item.id !== dataset.id)]);
     setStatus("ready");
+    router.push(`/datasets/${dataset.id}`);
   }
 
   async function openSample() {
@@ -76,7 +80,9 @@ export function DatasetLibrary() {
                 <div><Database size={13} /><dt className="sr-only">Columns</dt><dd>{dataset.column_count} columns</dd></div>
                 <div><Clock3 size={13} /><dt className="sr-only">Updated</dt><dd>{relativeDate(dataset.updated_at)}</dd></div>
               </dl>
-              <Button variant="ghost" size="small" aria-label={`Open ${dataset.name}`}><ArrowRight size={16} /></Button>
+              <Button variant="ghost" size="small" asChild>
+                <Link href={`/datasets/${dataset.id}`} aria-label={`Open ${dataset.name}`}><ArrowRight size={16} /></Link>
+              </Button>
             </article>
           ))}
         </div>
