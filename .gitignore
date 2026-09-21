@@ -16,6 +16,7 @@ pytest-cache-files-*/
 .ruff_cache/
 .venv/
 *.egg-info/
+*.tsbuildinfo
 
 # local state
 .env

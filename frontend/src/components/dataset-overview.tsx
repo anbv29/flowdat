@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DatasetProfile } from "@/components/dataset-profile";
 import { type DatasetDetail, getDataset } from "@/lib/api";
 
 export function DatasetOverview() {
@@ -97,6 +98,8 @@ export function DatasetOverview() {
           </dl>
         </div>
       </section>
+
+      <DatasetProfile dataset={dataset} />
     </>
   );
 }
