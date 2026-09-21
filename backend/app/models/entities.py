@@ -74,6 +74,8 @@ class Conversation(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(255), default="Untitled analysis")
     business_context: Mapped[str | None] = mapped_column(Text)
 
+    dataset: Mapped[Dataset] = relationship()
+
 
 class Message(Base):
     __tablename__ = "messages"
