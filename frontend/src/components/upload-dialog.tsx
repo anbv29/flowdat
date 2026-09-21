@@ -4,13 +4,44 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { FileSpreadsheet, Upload, X } from "lucide-react";
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { type Dataset, uploadDataset } from "@/lib/api";
 
-export function UploadDialog() {
+type UploadState =
+  | { phase: "idle" }
+  | { phase: "uploading"; percent: number }
+  | { phase: "profiling" }
+  | { phase: "error"; message: string };
+
+export function UploadDialog({ onUploaded }: { onUploaded: (dataset: Dataset) => void }) {
   const inputId = useId();
   const [file, setFile] = useState<File | null>(null);
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState<UploadState>({ phase: "idle" });
+
+  async function submit() {
+    if (!file) return;
+    setState({ phase: "uploading", percent: 0 });
+    try {
+      const dataset = await uploadDataset(file, (phase, percent) => {
+        setState(phase === "uploading" ? { phase, percent: percent ?? 0 } : { phase });
+      });
+      onUploaded(dataset);
+      setOpen(false);
+      setFile(null);
+      setState({ phase: "idle" });
+    } catch (error) {
+      setState({ phase: "error", message: error instanceof Error ? error.message : "Upload failed." });
+    }
+  }
+
+  const busy = state.phase === "uploading" || state.phase === "profiling";
 
   return (
-    <Dialog.Root onOpenChange={(open) => !open && setFile(null)}>
+    <Dialog.Root open={open} onOpenChange={(nextOpen) => {
+      if (busy) return;
+      setOpen(nextOpen);
+      if (!nextOpen) { setFile(null); setState({ phase: "idle" }); }
+    }}>
       <Dialog.Trigger asChild>
         <Button><Upload size={15} /> Upload dataset</Button>
       </Dialog.Trigger>
@@ -32,7 +63,8 @@ export function UploadDialog() {
               id={inputId}
               type="file"
               accept=".csv,.parquet,text/csv,application/vnd.apache.parquet"
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              disabled={busy}
+              onChange={(event) => { setFile(event.target.files?.[0] ?? null); setState({ phase: "idle" }); }}
             />
             <span className="file-icon"><FileSpreadsheet size={21} /></span>
             {file ? (
@@ -48,9 +80,17 @@ export function UploadDialog() {
             )}
           </label>
 
+          {state.phase !== "idle" && (
+            <div className={state.phase === "error" ? "upload-status is-error" : "upload-status"} role="status">
+              {state.phase === "uploading" && <><span>Uploading securely</span><strong>{state.percent}%</strong></>}
+              {state.phase === "profiling" && <><span>Reading columns and statistics</span><span className="spinner" /></>}
+              {state.phase === "error" && <span>{state.message}</span>}
+            </div>
+          )}
+
           <div className="dialog-actions">
-            <Dialog.Close asChild><Button variant="ghost">Cancel</Button></Dialog.Close>
-            <Button disabled={!file}>Profile dataset</Button>
+            <Dialog.Close asChild><Button variant="ghost" disabled={busy}>Cancel</Button></Dialog.Close>
+            <Button disabled={!file || busy} onClick={submit}>{busy ? "Working…" : "Profile dataset"}</Button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
