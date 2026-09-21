@@ -56,7 +56,9 @@ export function DatasetOverview() {
           <h1>{dataset.name}</h1>
           <p className="lede">{dataset.description ?? `Profile for ${dataset.original_filename}`}</p>
         </div>
-        <Button><MessageSquareText size={16} /> Ask a question</Button>
+        <Button asChild>
+          <Link href={`/analysis?dataset=${dataset.id}`}><MessageSquareText size={16} /> Ask a question</Link>
+        </Button>
       </div>
 
       <section className="metric-grid" aria-label="Dataset summary">

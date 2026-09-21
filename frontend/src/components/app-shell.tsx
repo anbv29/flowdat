@@ -1,16 +1,20 @@
+"use client";
+
 import { BarChart3, Database, History, PanelLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
-  { label: "Datasets", href: "/", icon: Database, active: true },
+  { label: "Datasets", href: "/", icon: Database },
   { label: "Analysis", href: "/analysis", icon: Sparkles },
   { label: "History", href: "/history", icon: History },
   { label: "Evaluations", href: "/evaluations", icon: BarChart3 },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   return (
     <div className="app-frame">
       <aside className="sidebar" aria-label="Primary navigation">
@@ -24,12 +28,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Link>
 
         <nav className="nav-list">
-          {navigation.map(({ label, href, icon: Icon, active }) => (
+          {navigation.map(({ label, href, icon: Icon }) => {
+            const active = href === "/" ? pathname === "/" || pathname.startsWith("/datasets/") : pathname.startsWith(href);
+            return (
             <Link className={active ? "nav-item is-active" : "nav-item"} href={href} key={label}>
               <Icon size={17} strokeWidth={1.8} />
               <span>{label}</span>
             </Link>
-          ))}
+          );})}
         </nav>
 
         <div className="sidebar-note">

@@ -29,6 +29,73 @@ export type DatasetDetail = Dataset & {
   preview: Array<Record<string, string | number | boolean | null>>;
 };
 
+export type Conversation = {
+  id: string;
+  dataset_id: string;
+  title: string;
+  business_context: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Message = {
+  id: string;
+  conversation_id: string;
+  role: "user" | "assistant";
+  content: string;
+  payload: Record<string, unknown> | null;
+  created_at: string;
+};
+
+export type AnalysisPlan = {
+  restated_question: string;
+  intent: string;
+  selected_dataset: string;
+  metrics: Array<{ column: string | null; aggregation: string; alias: string }>;
+  dimensions: string[];
+  filters: Array<{ column: string; operator: string; value: unknown }>;
+  time_column: string | null;
+  time_granularity: string | null;
+  required_joins: string[];
+  assumptions: string[];
+  clarification_needed: boolean;
+  clarification_question: string | null;
+  suggested_chart: "none" | "kpi" | "line" | "bar" | "donut" | "histogram" | "scatter" | "table";
+  approach: string;
+};
+
+export type CreatedPlan = {
+  query_run_id: string;
+  assistant_message: Message;
+  plan: AnalysisPlan;
+  provider: string;
+  model: string;
+  prompt_version: string;
+  mode: "openai" | "local_fallback";
+};
+
+export type AnalysisAnswer = {
+  direct_answer: string;
+  evidence: string[];
+  columns: string[];
+  rows: Array<Record<string, string | number | boolean | null>>;
+  chart: { type: AnalysisPlan["suggested_chart"]; x_key: string | null; y_keys: string[] };
+  assumptions: string[];
+  limitations: string[];
+  generated_sql: string;
+  row_count: number;
+  execution_time_ms: number;
+  suggested_follow_ups: string[];
+};
+
+export type ExecutedRun = {
+  query_run_id: string;
+  status: string;
+  answer: AnalysisAnswer;
+  model: string;
+  mode: "openai" | "local_fallback";
+};
+
 type DatasetListResponse = { items: Dataset[]; total: number };
 type ApiError = { error?: { message?: string } };
 
@@ -80,6 +147,44 @@ export async function exploreSample(): Promise<Dataset> {
   const response = await fetch(`${API_URL}/datasets/sample`, { method: "POST" });
   if (!response.ok) throw new Error(await responseMessage(response));
   return response.json() as Promise<Dataset>;
+}
+
+export async function listConversations(datasetId: string): Promise<Conversation[]> {
+  return apiRequest<Conversation[]>(`/conversations?dataset_id=${encodeURIComponent(datasetId)}`);
+}
+
+export async function createConversation(datasetId: string): Promise<Conversation> {
+  return apiRequest<Conversation>("/conversations", {
+    method: "POST",
+    body: JSON.stringify({ dataset_id: datasetId }),
+  });
+}
+
+export async function addQuestion(conversationId: string, content: string): Promise<Message> {
+  return apiRequest<Message>(`/conversations/${conversationId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
+}
+
+export async function createAnalysisPlan(conversationId: string, messageId: string): Promise<CreatedPlan> {
+  return apiRequest<CreatedPlan>(`/conversations/${conversationId}/plans`, {
+    method: "POST",
+    body: JSON.stringify({ message_id: messageId }),
+  });
+}
+
+export async function executeAnalysis(queryRunId: string): Promise<ExecutedRun> {
+  return apiRequest<ExecutedRun>(`/query-runs/${queryRunId}/execute`, { method: "POST" });
+}
+
+async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
+  });
+  if (!response.ok) throw new Error(await responseMessage(response));
+  return response.json() as Promise<T>;
 }
 
 async function responseMessage(response: Response) {
