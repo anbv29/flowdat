@@ -1,0 +1,28 @@
+# dependencies and build output
+node_modules/
+.next/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# local state
+.env
+.env.local
+*.duckdb
+*.db
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+
+# editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
