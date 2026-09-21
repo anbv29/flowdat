@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     upload_dir: Path = Path("storage/uploads")
     max_upload_mb: int = Field(default=100, ge=1, le=1024)
     openai_api_key: str | None = None
-    openai_model: str = "gpt-5-mini"
+    openai_model: str = "gpt-6-astra"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
