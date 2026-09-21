@@ -1,0 +1,37 @@
+[project]
+name = "signaldesk-api"
+version = "0.1.0"
+description = "The API and data engine behind SignalDesk."
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.13,<2",
+    "duckdb>=1.1,<2",
+    "fastapi>=0.115,<1",
+    "pandas>=2.2,<3",
+    "psycopg[binary]>=3.2,<4",
+    "pyarrow>=18,<21",
+    "pydantic-settings>=2.6,<3",
+    "python-multipart>=0.0.12,<1",
+    "sqlalchemy>=2.0,<3",
+    "sqlglot>=26,<30",
+    "uvicorn[standard]>=0.32,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.28,<1",
+    "pytest>=8.3,<9",
+    "pytest-cov>=6,<7",
+    "ruff>=0.8,<1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
