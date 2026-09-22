@@ -51,7 +51,16 @@ def choose_chart(plan: AnalysisPlan, columns: list[str], rows: list[dict[str, An
         return ChartConfig(type=ChartType.KPI, y_keys=[columns[0]])
     if len(columns) < 2 or plan.suggested_chart in {ChartType.NONE, ChartType.TABLE}:
         return ChartConfig(type=ChartType.TABLE)
-    return ChartConfig(type=plan.suggested_chart, x_key=columns[0], y_keys=columns[1:3])
+    chart_type = plan.suggested_chart
+    if plan.intent.value == "time_series":
+        chart_type = ChartType.LINE
+    elif plan.intent.value == "distribution":
+        chart_type = ChartType.HISTOGRAM
+    elif plan.intent.value == "relationship":
+        chart_type = ChartType.SCATTER
+    elif chart_type == ChartType.DONUT and len(rows) > 8:
+        chart_type = ChartType.BAR
+    return ChartConfig(type=chart_type, x_key=columns[0], y_keys=columns[1:3])
 
 
 def format_value(value: Any) -> str:

@@ -27,6 +27,11 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  Pie,
+  PieChart,
+  Cell,
+  Scatter,
+  ScatterChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -283,10 +288,26 @@ function AnswerView({ answer, onSave, onExport, onFollowUp, saveState }: { answe
 }
 
 function ResultChart({ answer }: { answer: AnalysisAnswer }) {
-  const { chart, rows } = answer;
-  if (!chart.x_key || !chart.y_keys.length || !["bar", "line"].includes(chart.type)) return null;
+  const { chart } = answer;
+  const rows = chartRows(answer);
+  if (!chart.x_key || !chart.y_keys.length || !["bar", "line", "donut", "histogram", "scatter"].includes(chart.type)) return null;
   const common = <><CartesianGrid stroke="rgba(42,51,72,.08)" vertical={false} /><XAxis dataKey={chart.x_key} tick={{ fontSize: 9, fill: "#777e8d" }} /><YAxis tick={{ fontSize: 9, fill: "#777e8d" }} /><Tooltip /></>;
-  return <div className="answer-chart"><ResponsiveContainer width="100%" height="100%">{chart.type === "line" ? <LineChart data={rows}>{common}{chart.y_keys.map((key) => <Line key={key} dataKey={key} stroke="#5a5f9f" strokeWidth={2} dot={false} />)}</LineChart> : <BarChart data={rows}>{common}{chart.y_keys.map((key) => <Bar key={key} dataKey={key} fill="#666ba6" radius={[4, 4, 0, 0]} />)}</BarChart>}</ResponsiveContainer></div>;
+  let visual;
+  if (chart.type === "line") visual = <LineChart data={rows}>{common}{chart.y_keys.map((key) => <Line key={key} dataKey={key} stroke="#5a5f9f" strokeWidth={2} dot={false} />)}</LineChart>;
+  else if (chart.type === "donut") visual = <PieChart><Tooltip /><Pie data={rows} dataKey={chart.y_keys[0]} nameKey={chart.x_key} innerRadius="52%" outerRadius="78%" paddingAngle={2}>{rows.map((_, index) => <Cell key={index} fill={["#5a5f9f", "#777cb4", "#9296c1", "#aeb0cf", "#c4c6d8", "#dadbe5"][index % 6]} />)}</Pie></PieChart>;
+  else if (chart.type === "scatter") visual = <ScatterChart><CartesianGrid stroke="rgba(42,51,72,.08)" /><XAxis dataKey={chart.x_key} tick={{ fontSize: 9 }} /><YAxis dataKey={chart.y_keys[0]} tick={{ fontSize: 9 }} /><Tooltip /><Scatter data={rows} fill="#5a5f9f" /></ScatterChart>;
+  else visual = <BarChart data={rows}>{common}{chart.y_keys.map((key) => <Bar key={key} dataKey={key} fill="#666ba6" radius={[4, 4, 0, 0]} />)}</BarChart>;
+  return <div className="answer-chart"><ResponsiveContainer width="100%" height="100%">{visual}</ResponsiveContainer></div>;
+}
+
+function chartRows(answer: AnalysisAnswer) {
+  const { chart, rows } = answer;
+  if (!chart.x_key || !chart.y_keys[0] || !["bar", "donut"].includes(chart.type) || rows.length <= 9) return rows;
+  const kept = rows.slice(0, 8);
+  const remainder = rows.slice(8);
+  const other: Record<string, string | number | boolean | null> = { [chart.x_key]: "Other" };
+  for (const key of chart.y_keys) other[key] = remainder.reduce((sum, row) => sum + (typeof row[key] === "number" ? row[key] : 0), 0);
+  return [...kept, other];
 }
 
 function WorkspaceNotice({ text }: { text: string }) {
