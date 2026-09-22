@@ -212,6 +212,17 @@ export async function saveInsight(queryRunId: string, title: string): Promise<Sa
   });
 }
 
+export async function deleteDataset(datasetId: string): Promise<void> {
+  const response = await fetch(`${API_URL}/datasets/${datasetId}`, { method: "DELETE" });
+  if (!response.ok) throw new Error(await responseMessage(response));
+}
+
+export async function exportResult(queryRunId: string): Promise<Blob> {
+  const response = await fetch(`${API_URL}/query-runs/${queryRunId}/export`);
+  if (!response.ok) throw new Error(await responseMessage(response));
+  return response.blob();
+}
+
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     ...init,

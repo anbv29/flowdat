@@ -14,6 +14,7 @@ import {
   PanelRight,
   Send,
   Bookmark,
+  Download,
   Sparkles,
   Table2,
 } from "lucide-react";
@@ -45,6 +46,7 @@ import {
   getDataset,
   listConversations,
   saveInsight,
+  exportResult,
 } from "@/lib/api";
 
 type WorkspaceMessage = Message | { id: string; role: "assistant"; content: string; created_at: string };
@@ -142,6 +144,21 @@ export function AnalysisWorkspace() {
     }
   }
 
+  async function downloadResult() {
+    if (!queryRunId) return;
+    try {
+      const blob = await exportResult(queryRunId);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `signaldesk-${queryRunId.slice(0, 8)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "The result could not be exported.");
+    }
+  }
+
   if (!datasetId) return <WorkspaceNotice text="Choose a dataset before starting an analysis." />;
   if (!dataset && !error) return <div className="analysis-loading"><LoaderCircle className="spinner-icon" /> Preparing workspace…</div>;
   if (!dataset) return <WorkspaceNotice text={error ?? "This dataset is unavailable."} />;
@@ -195,7 +212,7 @@ export function AnalysisWorkspace() {
               ))}
               {state !== "idle" && <AnalysisProgress state={state} />}
               {plan?.clarification_needed && <div className="assistant-note"><Sparkles size={15} /><p>{plan.clarification_question}</p></div>}
-              {answer && <AnswerView answer={answer} onSave={bookmarkAnswer} saveState={saveState} />}
+              {answer && <AnswerView answer={answer} onSave={bookmarkAnswer} onExport={downloadResult} saveState={saveState} />}
               {error && <div className="analysis-error">{error}</div>}
             </div>
           )}
@@ -241,10 +258,10 @@ function AnalysisProgress({ state }: { state: WorkState }) {
   return <div className="analysis-progress"><LoaderCircle className="spinner-icon" size={15} /><span>{copy}</span></div>;
 }
 
-function AnswerView({ answer, onSave, saveState }: { answer: AnalysisAnswer; onSave: () => void; saveState: "idle" | "saving" | "saved" }) {
+function AnswerView({ answer, onSave, onExport, saveState }: { answer: AnalysisAnswer; onSave: () => void; onExport: () => void; saveState: "idle" | "saving" | "saved" }) {
   return (
     <article className="answer-view">
-      <div className="answer-heading"><span><Sparkles size={16} /></span><div><p className="eyebrow">Verified answer</p><h2>{answer.direct_answer}</h2></div><Button className="save-insight" variant="secondary" size="small" onClick={onSave} disabled={saveState !== "idle"}><Bookmark size={13} />{saveState === "saved" ? "Saved" : saveState === "saving" ? "Saving…" : "Save insight"}</Button></div>
+      <div className="answer-heading"><span><Sparkles size={16} /></span><div><p className="eyebrow">Verified answer</p><h2>{answer.direct_answer}</h2></div><div className="answer-actions"><Button variant="ghost" size="small" onClick={onExport}><Download size={13} /> CSV</Button><Button variant="secondary" size="small" onClick={onSave} disabled={saveState !== "idle"}><Bookmark size={13} />{saveState === "saved" ? "Saved" : saveState === "saving" ? "Saving…" : "Save"}</Button></div></div>
       <ResultChart answer={answer} />
       <div className="result-table-wrap"><table><thead><tr>{answer.columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{answer.rows.slice(0, 20).map((row, index) => <tr key={index}>{answer.columns.map((column) => <td key={column}>{formatValue(row[column])}</td>)}</tr>)}</tbody></table></div>
       <ul className="evidence-list">{answer.evidence.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>

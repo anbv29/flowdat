@@ -15,6 +15,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DatasetProfile } from "@/components/dataset-profile";
+import { DatasetActions } from "@/components/dataset-actions";
 import { type DatasetDetail, getDataset } from "@/lib/api";
 
 export function DatasetOverview() {
@@ -56,9 +57,7 @@ export function DatasetOverview() {
           <h1>{dataset.name}</h1>
           <p className="lede">{dataset.description ?? `Profile for ${dataset.original_filename}`}</p>
         </div>
-        <Button asChild>
-          <Link href={`/analysis?dataset=${dataset.id}`}><MessageSquareText size={16} /> Ask a question</Link>
-        </Button>
+        <div className="dataset-actions"><DatasetActions datasetId={dataset.id} datasetName={dataset.name} /><Button asChild><Link href={`/analysis?dataset=${dataset.id}`}><MessageSquareText size={16} /> Ask a question</Link></Button></div>
       </div>
 
       <section className="metric-grid" aria-label="Dataset summary">

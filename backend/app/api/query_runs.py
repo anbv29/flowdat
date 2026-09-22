@@ -1,8 +1,11 @@
+import csv
+import io
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -50,6 +53,40 @@ def list_query_runs(
         )
         for run, dataset_name in db.execute(statement).all()
     ]
+
+
+@router.get("/{query_run_id}/export")
+def export_query_result(
+    query_run_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    query_run = db.get(QueryRun, query_run_id)
+    if not query_run or query_run.execution_status != "completed" or not query_run.answer:
+        raise AppError(
+            "result_not_available",
+            "This analysis does not have an exportable result.",
+            status_code=404,
+        )
+    answer = query_run.answer
+    columns = answer.get("columns", [])
+    rows = answer.get("rows", [])
+    output = io.StringIO(newline="")
+    writer = csv.DictWriter(output, fieldnames=columns, extrasaction="ignore")
+    writer.writeheader()
+    for row in rows:
+        writer.writerow({column: safe_csv_value(row.get(column)) for column in columns})
+    filename = f"signaldesk-{str(query_run.id)[:8]}.csv"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+def safe_csv_value(value: object) -> object:
+    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
+        return "'" + value
+    return value
 
 
 @router.post("/{query_run_id}/execute", response_model=ExecuteRunResponse)
