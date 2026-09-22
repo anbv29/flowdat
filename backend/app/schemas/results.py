@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Any
 
 from pydantic import Field
@@ -36,3 +37,16 @@ class ExecuteRunResponse(StrictModel):
     answer: AnalysisAnswer
     model: str
     mode: str
+
+
+class QueryRunHistoryItem(StrictModel):
+    id: uuid.UUID
+    dataset_id: uuid.UUID
+    dataset_name: str
+    conversation_id: uuid.UUID | None
+    user_question: str
+    execution_status: str
+    execution_time_ms: float | None
+    row_count: int | None
+    answer_summary: str | None
+    created_at: datetime

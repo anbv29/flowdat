@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -11,7 +11,7 @@ from app.core.database import get_db
 from app.core.errors import AppError
 from app.models import Dataset, QueryRun
 from app.schemas.analysis import AnalysisPlan
-from app.schemas.results import ExecuteRunResponse
+from app.schemas.results import ExecuteRunResponse, QueryRunHistoryItem
 from app.services.analysis_provider import build_dataset_context
 from app.services.answers import build_answer
 from app.services.execution import execute_query, verify_result
@@ -19,6 +19,37 @@ from app.services.sql_generation import get_sql_generation_provider
 from app.services.sql_safety import SQLSafetyService
 
 router = APIRouter(prefix="/query-runs", tags=["query runs"])
+
+
+@router.get("", response_model=list[QueryRunHistoryItem])
+def list_query_runs(
+    dataset_id: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    db: Session = Depends(get_db),
+) -> list[QueryRunHistoryItem]:
+    statement = (
+        select(QueryRun, Dataset.name)
+        .join(Dataset, Dataset.id == QueryRun.dataset_id)
+        .order_by(QueryRun.created_at.desc())
+        .limit(limit)
+    )
+    if dataset_id:
+        statement = statement.where(QueryRun.dataset_id == dataset_id)
+    return [
+        QueryRunHistoryItem(
+            id=run.id,
+            dataset_id=run.dataset_id,
+            dataset_name=dataset_name,
+            conversation_id=run.conversation_id,
+            user_question=run.user_question,
+            execution_status=run.execution_status,
+            execution_time_ms=run.execution_time_ms,
+            row_count=run.row_count,
+            answer_summary=(run.answer or {}).get("direct_answer"),
+            created_at=run.created_at,
+        )
+        for run, dataset_name in db.execute(statement).all()
+    ]
 
 
 @router.post("/{query_run_id}/execute", response_model=ExecuteRunResponse)

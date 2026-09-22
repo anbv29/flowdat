@@ -96,6 +96,19 @@ export type ExecutedRun = {
   mode: "openai" | "local_fallback";
 };
 
+export type QueryRunHistoryItem = {
+  id: string;
+  dataset_id: string;
+  dataset_name: string;
+  conversation_id: string | null;
+  user_question: string;
+  execution_status: string;
+  execution_time_ms: number | null;
+  row_count: number | null;
+  answer_summary: string | null;
+  created_at: string;
+};
+
 type DatasetListResponse = { items: Dataset[]; total: number };
 type ApiError = { error?: { message?: string } };
 
@@ -176,6 +189,10 @@ export async function createAnalysisPlan(conversationId: string, messageId: stri
 
 export async function executeAnalysis(queryRunId: string): Promise<ExecutedRun> {
   return apiRequest<ExecutedRun>(`/query-runs/${queryRunId}/execute`, { method: "POST" });
+}
+
+export async function listQueryRuns(): Promise<QueryRunHistoryItem[]> {
+  return apiRequest<QueryRunHistoryItem[]>("/query-runs");
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
