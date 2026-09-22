@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
 from app.core.errors import AppError
-from app.models import Dataset, QueryRun
+from app.models import Dataset, Message, QueryRun
 from app.schemas.analysis import AnalysisPlan
 from app.schemas.results import ExecuteRunResponse, QueryRunHistoryItem
 from app.services.analysis_provider import build_dataset_context
@@ -179,6 +179,15 @@ async def execute_analysis(
         {"attempt": 1, "sql": validated.sql, "stage": "executed", "row_count": len(rows)}
     ]
     query_run.completed_at = datetime.now(UTC)
+    if query_run.conversation_id:
+        db.add(
+            Message(
+                conversation_id=query_run.conversation_id,
+                role="assistant",
+                content=answer.direct_answer,
+                payload={"type": "analysis_answer", "answer": answer.model_dump(mode="json")},
+            )
+        )
     db.commit()
     return ExecuteRunResponse(
         query_run_id=query_run.id,

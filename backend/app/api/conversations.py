@@ -123,7 +123,19 @@ async def create_analysis_plan(
         raise AppError("dataset_not_found", "That dataset is no longer available.", status_code=404)
 
     provider = get_analysis_plan_provider(settings)
-    result = await provider.create_plan(message.content, build_dataset_context(dataset))
+    previous_messages = list(
+        db.scalars(
+            select(Message)
+            .where(Message.conversation_id == conversation_id, Message.id != message.id)
+            .order_by(Message.created_at.desc())
+            .limit(6)
+        ).all()
+    )
+    result = await provider.create_plan(
+        message.content,
+        build_dataset_context(dataset),
+        [item.content for item in reversed(previous_messages)],
+    )
     plan = validate_plan_for_dataset(result.plan, dataset)
     query_run = QueryRun(
         conversation_id=conversation.id,

@@ -118,6 +118,15 @@ export function AnalysisWorkspace() {
         const executed = await executeAnalysis(createdPlan.query_run_id);
         setAnswer(executed.answer);
         setMode(executed.mode);
+        setMessages((current) => [
+          ...current,
+          {
+            id: `${createdPlan.query_run_id}-answer`,
+            role: "assistant",
+            content: executed.answer.direct_answer,
+            created_at: new Date().toISOString(),
+          },
+        ]);
       }
       setState("idle");
     } catch (reason) {
@@ -207,12 +216,14 @@ export function AnalysisWorkspace() {
             </div>
           ) : (
             <div className="message-list">
-              {messages.filter((message) => message.role === "user").map((message) => (
+              {messages.map((message) => message.role === "user" ? (
                 <div className="user-message" key={message.id}>{message.content}</div>
+              ) : (
+                <div className="assistant-message" key={message.id}><Sparkles size={13} /><p>{message.content}</p></div>
               ))}
               {state !== "idle" && <AnalysisProgress state={state} />}
               {plan?.clarification_needed && <div className="assistant-note"><Sparkles size={15} /><p>{plan.clarification_question}</p></div>}
-              {answer && <AnswerView answer={answer} onSave={bookmarkAnswer} onExport={downloadResult} saveState={saveState} />}
+              {answer && <AnswerView answer={answer} onSave={bookmarkAnswer} onExport={downloadResult} onFollowUp={(prompt) => void ask(prompt)} saveState={saveState} />}
               {error && <div className="analysis-error">{error}</div>}
             </div>
           )}
@@ -258,7 +269,7 @@ function AnalysisProgress({ state }: { state: WorkState }) {
   return <div className="analysis-progress"><LoaderCircle className="spinner-icon" size={15} /><span>{copy}</span></div>;
 }
 
-function AnswerView({ answer, onSave, onExport, saveState }: { answer: AnalysisAnswer; onSave: () => void; onExport: () => void; saveState: "idle" | "saving" | "saved" }) {
+function AnswerView({ answer, onSave, onExport, onFollowUp, saveState }: { answer: AnalysisAnswer; onSave: () => void; onExport: () => void; onFollowUp: (prompt: string) => void; saveState: "idle" | "saving" | "saved" }) {
   return (
     <article className="answer-view">
       <div className="answer-heading"><span><Sparkles size={16} /></span><div><p className="eyebrow">Verified answer</p><h2>{answer.direct_answer}</h2></div><div className="answer-actions"><Button variant="ghost" size="small" onClick={onExport}><Download size={13} /> CSV</Button><Button variant="secondary" size="small" onClick={onSave} disabled={saveState !== "idle"}><Bookmark size={13} />{saveState === "saved" ? "Saved" : saveState === "saving" ? "Saving…" : "Save"}</Button></div></div>
@@ -266,6 +277,7 @@ function AnswerView({ answer, onSave, onExport, saveState }: { answer: AnalysisA
       <div className="result-table-wrap"><table><thead><tr>{answer.columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{answer.rows.slice(0, 20).map((row, index) => <tr key={index}>{answer.columns.map((column) => <td key={column}>{formatValue(row[column])}</td>)}</tr>)}</tbody></table></div>
       <ul className="evidence-list">{answer.evidence.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
       <p className="execution-note">{answer.row_count} result rows · {answer.execution_time_ms.toFixed(1)} ms</p>
+      <div className="follow-up-list"><span>Continue exploring</span>{answer.suggested_follow_ups.map((item) => <button type="button" onClick={() => onFollowUp(item)} key={item}>{item}<ChevronRight size={12} /></button>)}</div>
     </article>
   );
 }

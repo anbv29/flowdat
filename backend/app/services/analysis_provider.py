@@ -50,7 +50,12 @@ class PlanResult:
 
 
 class AnalysisPlanProvider(Protocol):
-    async def create_plan(self, question: str, context: DatasetContext) -> PlanResult: ...
+    async def create_plan(
+        self,
+        question: str,
+        context: DatasetContext,
+        previous_context: list[str] | None = None,
+    ) -> PlanResult: ...
 
 
 class OpenAIAnalysisPlanProvider:
@@ -58,12 +63,17 @@ class OpenAIAnalysisPlanProvider:
         self.client = AsyncOpenAI(api_key=api_key)
         self.model = model
 
-    async def create_plan(self, question: str, context: DatasetContext) -> PlanResult:
+    async def create_plan(
+        self,
+        question: str,
+        context: DatasetContext,
+        previous_context: list[str] | None = None,
+    ) -> PlanResult:
         try:
             response = await self.client.responses.parse(
                 model=self.model,
                 instructions=PLAN_INSTRUCTIONS,
-                input=_plan_input(question, context),
+                input=_plan_input(question, context, previous_context),
                 text_format=AnalysisPlan,
                 store=False,
             )
@@ -98,9 +108,14 @@ class OpenAIAnalysisPlanProvider:
 class LocalAnalysisPlanProvider:
     """Small, explicit planner for development without an API key."""
 
-    async def create_plan(self, question: str, context: DatasetContext) -> PlanResult:
+    async def create_plan(
+        self,
+        question: str,
+        context: DatasetContext,
+        previous_context: list[str] | None = None,
+    ) -> PlanResult:
         return PlanResult(
-            plan=_local_plan(question, context),
+            plan=_local_plan(question, context, previous_context),
             provider="local",
             model="deterministic-planner-v1",
             prompt_version=PROMPT_VERSION,
@@ -145,13 +160,25 @@ match the supplied dataset id. A row count metric uses aggregation=count and col
 """
 
 
-def _plan_input(question: str, context: DatasetContext) -> str:
-    payload = {"question": question, "dataset": context.model_dump(mode="json")}
+def _plan_input(
+    question: str,
+    context: DatasetContext,
+    previous_context: list[str] | None = None,
+) -> str:
+    payload = {
+        "question": question,
+        "previous_conversation": (previous_context or [])[-6:],
+        "dataset": context.model_dump(mode="json"),
+    }
     return json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
 
 
-def _local_plan(question: str, context: DatasetContext) -> AnalysisPlan:
-    lowered = question.lower()
+def _local_plan(
+    question: str,
+    context: DatasetContext,
+    previous_context: list[str] | None = None,
+) -> AnalysisPlan:
+    lowered = " ".join([*(previous_context or [])[-2:], question]).lower()
     columns = {column.name.lower(): column for column in context.columns}
     measures = [column for column in context.columns if column.semantic_type == "measure"]
     dates = [column for column in context.columns if column.semantic_type == "date"]
