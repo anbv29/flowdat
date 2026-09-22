@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     query_timeout_seconds: int = Field(default=10, ge=1, le=120)
     openai_api_key: str | None = None
     openai_model: str = "gpt-6-astra"
+    model_input_cost_per_million_usd: float = Field(default=0, ge=0)
+    model_output_cost_per_million_usd: float = Field(default=0, ge=0)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
