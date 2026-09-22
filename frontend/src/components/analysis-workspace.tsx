@@ -13,6 +13,7 @@ import {
   MessageSquareText,
   PanelRight,
   Send,
+  Bookmark,
   Sparkles,
   Table2,
 } from "lucide-react";
@@ -43,6 +44,7 @@ import {
   executeAnalysis,
   getDataset,
   listConversations,
+  saveInsight,
 } from "@/lib/api";
 
 type WorkspaceMessage = Message | { id: string; role: "assistant"; content: string; created_at: string };
@@ -65,6 +67,8 @@ export function AnalysisWorkspace() {
   const [plan, setPlan] = useState<AnalysisPlan | null>(null);
   const [answer, setAnswer] = useState<AnalysisAnswer | null>(null);
   const [mode, setMode] = useState<"openai" | "local_fallback" | null>(null);
+  const [queryRunId, setQueryRunId] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [state, setState] = useState<WorkState>("idle");
   const [error, setError] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>("conversation");
@@ -103,6 +107,7 @@ export function AnalysisWorkspace() {
       setMessages((current) => [...current, userMessage]);
       setState("planning");
       const createdPlan = await createAnalysisPlan(activeConversationId, userMessage.id);
+      setQueryRunId(createdPlan.query_run_id);
       setPlan(createdPlan.plan);
       setMode(createdPlan.mode);
       setMessages((current) => [...current, createdPlan.assistant_message]);
@@ -123,6 +128,18 @@ export function AnalysisWorkspace() {
   function submit(event: FormEvent) {
     event.preventDefault();
     void ask(question);
+  }
+
+  async function bookmarkAnswer() {
+    if (!queryRunId || !answer) return;
+    setSaveState("saving");
+    try {
+      await saveInsight(queryRunId, plan?.restated_question ?? answer.direct_answer);
+      setSaveState("saved");
+    } catch (reason) {
+      setSaveState("idle");
+      setError(reason instanceof Error ? reason.message : "The insight could not be saved.");
+    }
   }
 
   if (!datasetId) return <WorkspaceNotice text="Choose a dataset before starting an analysis." />;
@@ -178,7 +195,7 @@ export function AnalysisWorkspace() {
               ))}
               {state !== "idle" && <AnalysisProgress state={state} />}
               {plan?.clarification_needed && <div className="assistant-note"><Sparkles size={15} /><p>{plan.clarification_question}</p></div>}
-              {answer && <AnswerView answer={answer} />}
+              {answer && <AnswerView answer={answer} onSave={bookmarkAnswer} saveState={saveState} />}
               {error && <div className="analysis-error">{error}</div>}
             </div>
           )}
@@ -224,10 +241,10 @@ function AnalysisProgress({ state }: { state: WorkState }) {
   return <div className="analysis-progress"><LoaderCircle className="spinner-icon" size={15} /><span>{copy}</span></div>;
 }
 
-function AnswerView({ answer }: { answer: AnalysisAnswer }) {
+function AnswerView({ answer, onSave, saveState }: { answer: AnalysisAnswer; onSave: () => void; saveState: "idle" | "saving" | "saved" }) {
   return (
     <article className="answer-view">
-      <div className="answer-heading"><span><Sparkles size={16} /></span><div><p className="eyebrow">Verified answer</p><h2>{answer.direct_answer}</h2></div></div>
+      <div className="answer-heading"><span><Sparkles size={16} /></span><div><p className="eyebrow">Verified answer</p><h2>{answer.direct_answer}</h2></div><Button className="save-insight" variant="secondary" size="small" onClick={onSave} disabled={saveState !== "idle"}><Bookmark size={13} />{saveState === "saved" ? "Saved" : saveState === "saving" ? "Saving…" : "Save insight"}</Button></div>
       <ResultChart answer={answer} />
       <div className="result-table-wrap"><table><thead><tr>{answer.columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{answer.rows.slice(0, 20).map((row, index) => <tr key={index}>{answer.columns.map((column) => <td key={column}>{formatValue(row[column])}</td>)}</tr>)}</tbody></table></div>
       <ul className="evidence-list">{answer.evidence.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>

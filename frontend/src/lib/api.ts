@@ -109,6 +109,16 @@ export type QueryRunHistoryItem = {
   created_at: string;
 };
 
+export type SavedInsight = {
+  id: string;
+  dataset_id: string;
+  query_run_id: string;
+  title: string;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 type DatasetListResponse = { items: Dataset[]; total: number };
 type ApiError = { error?: { message?: string } };
 
@@ -193,6 +203,13 @@ export async function executeAnalysis(queryRunId: string): Promise<ExecutedRun> 
 
 export async function listQueryRuns(): Promise<QueryRunHistoryItem[]> {
   return apiRequest<QueryRunHistoryItem[]>("/query-runs");
+}
+
+export async function saveInsight(queryRunId: string, title: string): Promise<SavedInsight> {
+  return apiRequest<SavedInsight>("/insights", {
+    method: "POST",
+    body: JSON.stringify({ query_run_id: queryRunId, title }),
+  });
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {

@@ -321,6 +321,8 @@ h1 { margin: 0; font-family: var(--font-display), Georgia, serif; font-size: cla
 .answer-heading > span { display: grid; width: 31px; height: 31px; flex: none; place-items: center; border-radius: 9px; color: var(--indigo); background: rgba(90, 95, 159, 0.09); }
 .answer-heading .eyebrow { margin-bottom: 5px; }
 .answer-heading h2 { margin: 0; font-family: var(--font-display), Georgia, serif; font-size: 23px; font-weight: 400; letter-spacing: -0.025em; line-height: 1.2; }
+.answer-heading > div { min-width: 0; }
+.save-insight { margin-left: auto; flex: none; }
 .answer-chart { height: 250px; margin: 18px 0; padding: 15px 10px 5px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255, 255, 255, 0.45); }
 .result-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; background: rgba(255, 255, 255, 0.4); }
 .result-table-wrap table { width: 100%; border-collapse: collapse; font-size: 10px; }
