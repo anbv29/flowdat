@@ -125,59 +125,102 @@ async def execute_analysis(
         raise AppError("dataset_not_found", "That dataset is no longer available.", status_code=404)
 
     provider = get_sql_generation_provider(settings)
-    generated = await provider.generate_sql(plan, build_dataset_context(dataset))
-    query_run.sql = generated.sql
-    query_run.correction_attempts = [{"attempt": 1, "sql": generated.sql, "stage": "generated"}]
-    try:
-        safety = SQLSafetyService(
-            "dataset", {column.name for column in dataset.columns}, settings.max_result_rows
-        )
-        validated = safety.validate(generated.sql)
-        query_run.sql = validated.sql
-        query_run.validation_outcome = {
-            "valid": True,
-            "limit_applied": validated.limit_applied,
-            "max_rows": validated.max_rows,
-        }
-        columns, rows, elapsed_ms = execute_query(
-            Path(dataset.profile["duckdb_path"]),
-            validated.sql,
-            settings.query_timeout_seconds,
-        )
-        verify_result(columns, rows)
-        answer = build_answer(plan, columns, rows, validated.sql, elapsed_ms)
-    except AppError as exc:
-        query_run.execution_status = (
-            "rejected"
-            if exc.code.startswith("sql_")
-            or exc.code
-            in {
-                "statement_not_allowed",
-                "unknown_tables",
-                "unknown_columns",
-                "filesystem_access_rejected",
-                "multiple_statements",
+    context = build_dataset_context(dataset)
+    generated = await provider.generate_sql(plan, context)
+    attempts: list[dict] = []
+    generation_usage = dict(generated.token_usage)
+    correctable_errors = {
+        "invalid_sql",
+        "unknown_columns",
+        "unknown_tables",
+        "query_execution_failed",
+        "missing_required_columns",
+        "empty_result",
+    }
+    for attempt_number in range(1, 3):
+        query_run.sql = generated.sql
+        try:
+            safety = SQLSafetyService(
+                "dataset", {column.name for column in dataset.columns}, settings.max_result_rows
+            )
+            validated = safety.validate(generated.sql)
+            query_run.sql = validated.sql
+            query_run.validation_outcome = {
+                "valid": True,
+                "limit_applied": validated.limit_applied,
+                "max_rows": validated.max_rows,
             }
-            else "failed"
-        )
-        query_run.validation_outcome = {
-            "valid": False,
-            "code": exc.code,
-            "message": exc.message,
-        }
-        query_run.completed_at = datetime.now(UTC)
-        db.commit()
-        raise
+            columns, rows, elapsed_ms = execute_query(
+                Path(dataset.profile["duckdb_path"]),
+                validated.sql,
+                settings.query_timeout_seconds,
+            )
+            verification_warnings = verify_result(columns, rows, plan, dataset)
+            answer = build_answer(
+                plan,
+                columns,
+                rows,
+                validated.sql,
+                elapsed_ms,
+                verification_warnings,
+            )
+            attempts.append(
+                {
+                    "attempt": attempt_number,
+                    "sql": validated.sql,
+                    "stage": "executed",
+                    "row_count": len(rows),
+                }
+            )
+            break
+        except AppError as exc:
+            attempts.append(
+                {
+                    "attempt": attempt_number,
+                    "sql": generated.sql,
+                    "stage": "rejected",
+                    "error_code": exc.code,
+                }
+            )
+            if attempt_number == 1 and exc.code in correctable_errors:
+                generated = await provider.correct_sql(
+                    plan,
+                    context,
+                    generated.sql,
+                    exc.code,
+                )
+                generation_usage = _merge_usage(generation_usage, generated.token_usage)
+                continue
+            query_run.execution_status = (
+                "rejected"
+                if exc.code.startswith("sql_")
+                or exc.code
+                in {
+                    "statement_not_allowed",
+                    "unknown_tables",
+                    "unknown_columns",
+                    "filesystem_access_rejected",
+                    "multiple_statements",
+                }
+                else "failed"
+            )
+            query_run.validation_outcome = {
+                "valid": False,
+                "code": exc.code,
+                "message": exc.message,
+            }
+            query_run.correction_attempts = attempts
+            query_run.completed_at = datetime.now(UTC)
+            db.commit()
+            raise
 
     query_run.execution_status = "completed"
     query_run.execution_time_ms = elapsed_ms
     query_run.row_count = len(rows)
     query_run.answer = answer.model_dump(mode="json")
     query_run.model_identifier = generated.model
-    query_run.token_usage = _merge_usage(query_run.token_usage, generated.token_usage)
-    query_run.correction_attempts = [
-        {"attempt": 1, "sql": validated.sql, "stage": "executed", "row_count": len(rows)}
-    ]
+    query_run.token_usage = _merge_usage(query_run.token_usage, generation_usage)
+    query_run.correction_attempts = attempts
     query_run.completed_at = datetime.now(UTC)
     if query_run.conversation_id:
         db.add(

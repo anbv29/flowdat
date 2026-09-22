@@ -10,6 +10,7 @@ def build_answer(
     rows: list[dict[str, Any]],
     sql: str,
     execution_time_ms: float,
+    verification_warnings: list[str] | None = None,
 ) -> AnalysisAnswer:
     first = rows[0]
     if len(rows) == 1 and len(columns) == 1:
@@ -31,7 +32,10 @@ def build_answer(
         rows=rows,
         chart=chart,
         assumptions=plan.assumptions,
-        limitations=["This describes the returned data and does not establish causation."],
+        limitations=[
+            "This describes the returned data and does not establish causation.",
+            *(verification_warnings or []),
+        ],
         generated_sql=sql,
         row_count=len(rows),
         execution_time_ms=round(execution_time_ms, 2),

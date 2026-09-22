@@ -25,6 +25,14 @@ class SQLResult:
 class SQLGenerationProvider(Protocol):
     async def generate_sql(self, plan: AnalysisPlan, context: DatasetContext) -> SQLResult: ...
 
+    async def correct_sql(
+        self,
+        plan: AnalysisPlan,
+        context: DatasetContext,
+        failed_sql: str,
+        error_code: str,
+    ) -> SQLResult: ...
+
 
 class OpenAISQLGenerationProvider:
     def __init__(self, api_key: str, model: str) -> None:
@@ -70,9 +78,67 @@ class OpenAISQLGenerationProvider:
             },
         )
 
+    async def correct_sql(
+        self,
+        plan: AnalysisPlan,
+        context: DatasetContext,
+        failed_sql: str,
+        error_code: str,
+    ) -> SQLResult:
+        payload = {
+            "plan": plan.model_dump(mode="json"),
+            "table": "dataset",
+            "columns": [{"name": item.name, "type": item.data_type} for item in context.columns],
+            "rejected_sql": failed_sql,
+            "validation_error": error_code,
+        }
+        try:
+            response = await self.client.responses.parse(
+                model=self.model,
+                instructions=SQL_CORRECTION_INSTRUCTIONS,
+                input=json.dumps(payload, separators=(",", ":")),
+                text_format=SQLDraft,
+                store=False,
+            )
+        except Exception as exc:
+            raise AppError(
+                "sql_correction_failed",
+                "The analysis service could not safely correct the query.",
+                status_code=502,
+            ) from exc
+        if response.output_parsed is None:
+            raise AppError("sql_correction_missing", "No corrected query was returned.")
+        usage = response.usage
+        return SQLResult(
+            sql=response.output_parsed.sql,
+            provider="openai",
+            model=self.model,
+            mode="openai",
+            token_usage={
+                "input_tokens": usage.input_tokens if usage else 0,
+                "output_tokens": usage.output_tokens if usage else 0,
+            },
+        )
+
 
 class LocalSQLGenerationProvider:
     async def generate_sql(self, plan: AnalysisPlan, context: DatasetContext) -> SQLResult:
+        return SQLResult(
+            sql=build_sql(plan),
+            provider="local",
+            model="deterministic-sql-v1",
+            mode="local_fallback",
+            token_usage={},
+        )
+
+    async def correct_sql(
+        self,
+        plan: AnalysisPlan,
+        context: DatasetContext,
+        failed_sql: str,
+        error_code: str,
+    ) -> SQLResult:
+        del context, failed_sql, error_code
         return SQLResult(
             sql=build_sql(plan),
             provider="local",
@@ -92,6 +158,12 @@ SQL_INSTRUCTIONS = """Generate one DuckDB SELECT query for the supplied approved
 Use only the dataset table and listed columns. Never use comments, multiple statements,
 file-reading functions, extensions, pragmas, DDL, or DML. Quote identifiers with double
 quotes. Return SQL only in the structured sql field. Do not add an explanation.
+"""
+
+SQL_CORRECTION_INSTRUCTIONS = """Correct one rejected DuckDB SELECT query using the
+approved plan, schema, and non-sensitive validation error. Return exactly one read-only
+query in the structured sql field. Never use comments, external files, extensions,
+pragmas, DDL, or DML. Do not repeat an unknown table or column.
 """
 
 
