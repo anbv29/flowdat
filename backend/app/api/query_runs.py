@@ -22,6 +22,7 @@ from app.services.sql_generation import get_sql_generation_provider
 from app.services.sql_safety import SQLSafetyService
 
 router = APIRouter(prefix="/query-runs", tags=["query runs"])
+MAX_SQL_ATTEMPTS = 2
 
 
 @router.get("", response_model=list[QueryRunHistoryItem])
@@ -137,7 +138,7 @@ async def execute_analysis(
         "missing_required_columns",
         "empty_result",
     }
-    for attempt_number in range(1, 3):
+    for attempt_number in range(1, MAX_SQL_ATTEMPTS + 1):
         query_run.sql = generated.sql
         try:
             safety = SQLSafetyService(
@@ -182,7 +183,7 @@ async def execute_analysis(
                     "error_code": exc.code,
                 }
             )
-            if attempt_number == 1 and exc.code in correctable_errors:
+            if should_correct(attempt_number, exc.code, correctable_errors):
                 generated = await provider.correct_sql(
                     plan,
                     context,
@@ -246,3 +247,7 @@ def _merge_usage(current: dict | None, added: dict[str, int]) -> dict[str, int]:
     for key, value in added.items():
         result[key] = int(result.get(key, 0)) + value
     return result
+
+
+def should_correct(attempt_number: int, error_code: str, correctable_errors: set[str]) -> bool:
+    return attempt_number < MAX_SQL_ATTEMPTS and error_code in correctable_errors
