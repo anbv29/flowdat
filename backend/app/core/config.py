@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     max_result_rows: int = Field(default=500, ge=1, le=5000)
     query_timeout_seconds: int = Field(default=10, ge=1, le=120)
     openai_api_key: str | None = None
-    openai_model: str = "gpt-6-astra"
+    openai_model: str = "gpt-5.5"
     model_input_cost_per_million_usd: float = Field(default=0, ge=0)
     model_output_cost_per_million_usd: float = Field(default=0, ge=0)
 

@@ -52,7 +52,7 @@ For Docker Compose, set optional values in a root `.env` file or edit the compos
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `OPENAI_API_KEY` | empty | Enables the OpenAI provider |
-| `OPENAI_MODEL` | `gpt-6-astra` | Model used by both provider stages |
+| `OPENAI_MODEL` | `gpt-5.5` | Model used by both provider stages |
 | `MAX_UPLOAD_MB` | `100` | Streamed upload limit |
 | `MAX_RESULT_ROWS` | `500` | Maximum returned rows |
 | `QUERY_TIMEOUT_SECONDS` | `10` | DuckDB execution timeout |
