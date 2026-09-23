@@ -119,6 +119,33 @@ export type SavedInsight = {
   updated_at: string;
 };
 
+export type EvaluationSummary = {
+  total_cases: number;
+  passed_cases: number;
+  sql_validity_rate: number;
+  execution_success_rate: number;
+  result_correctness_rate: number;
+  clarification_quality_rate: number;
+  unsafe_rejection_rate: number;
+  average_latency_ms: number;
+  estimated_model_cost_usd: number;
+};
+
+export type EvaluationFailure = {
+  id: string;
+  case_name: string;
+  question: string;
+  category: string;
+  actual_outcome: string;
+  expected: Record<string, unknown>;
+  failure_reason: string | null;
+};
+
+export type EvaluationReport = {
+  summary: EvaluationSummary;
+  failures: EvaluationFailure[];
+};
+
 type DatasetListResponse = { items: Dataset[]; total: number };
 type ApiError = { error?: { message?: string } };
 
@@ -221,6 +248,16 @@ export async function exportResult(queryRunId: string): Promise<Blob> {
   const response = await fetch(`${API_URL}/query-runs/${queryRunId}/export`);
   if (!response.ok) throw new Error(await responseMessage(response));
   return response.blob();
+}
+
+export async function getEvaluationSummary(signal?: AbortSignal): Promise<EvaluationReport> {
+  return apiRequest<EvaluationReport>("/evaluations/summary", { signal, cache: "no-store" });
+}
+
+export async function runEvaluations(datasetId: string): Promise<EvaluationReport> {
+  return apiRequest<EvaluationReport>(`/evaluations/run?dataset_id=${encodeURIComponent(datasetId)}`, {
+    method: "POST",
+  });
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
