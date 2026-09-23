@@ -21,6 +21,10 @@ services:
       DATABASE_URL: postgresql+psycopg://signaldesk:signaldesk@postgres:5432/signaldesk
       FRONTEND_ORIGIN: http://localhost:3000
       UPLOAD_DIR: /app/storage/uploads
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-astra}
+      MODEL_INPUT_COST_PER_MILLION_USD: ${MODEL_INPUT_COST_PER_MILLION_USD:-0}
+      MODEL_OUTPUT_COST_PER_MILLION_USD: ${MODEL_OUTPUT_COST_PER_MILLION_USD:-0}
     ports:
       - "8000:8000"
     volumes:
@@ -28,6 +32,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   frontend:
     build:
@@ -38,7 +47,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

@@ -1,0 +1,16 @@
+.git
+.github
+.agents
+.codex
+node_modules
+frontend/.next
+frontend/playwright-report
+frontend/test-results
+backend/.venv
+backend/.pytest_cache
+backend/.ruff_cache
+backend/.test-tmp
+backend/.verified-test-tmp
+backend/storage/uploads/*
+*.pyc
+*.duckdb

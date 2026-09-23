@@ -6,7 +6,10 @@
     "build": "npm run build --workspace frontend",
     "lint": "npm run lint --workspace frontend",
     "test": "npm run test --workspace frontend",
-    "test:e2e": "npm run test:e2e --workspace frontend"
+    "test:e2e": "npm run test:e2e --workspace frontend",
+    "stack:up": "docker compose up --build -d",
+    "stack:down": "docker compose down",
+    "stack:logs": "docker compose logs -f"
   },
   "workspaces": [
     "frontend"
