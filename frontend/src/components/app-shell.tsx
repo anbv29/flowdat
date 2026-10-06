@@ -3,7 +3,8 @@
 import { BarChart3, Database, History, PanelLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
@@ -15,6 +16,7 @@ const navigation = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="app-frame">
       <aside className="sidebar" aria-label="Primary navigation">
@@ -49,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="main-column">
         <header className="topbar">
-          <Button className="mobile-menu" variant="ghost" size="small" aria-label="Open navigation">
+          <Button className="mobile-menu" variant="ghost" size="small" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>
             <PanelLeft size={18} />
           </Button>
           <span className="workspace-name">Personal workspace</span>
@@ -58,6 +60,23 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
         {children}
+        <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="dialog-overlay" />
+            <Dialog.Content className="navigation-drawer">
+              <Dialog.Title>SignalDesk</Dialog.Title>
+              <Dialog.Description>Navigate your workspace.</Dialog.Description>
+              <nav aria-label="Mobile navigation">
+                {navigation.map(({ label, href, icon: Icon }) => (
+                  <Link href={href} key={href} onClick={() => setMenuOpen(false)} className="nav-item">
+                    <Icon size={18} /><span>{label}</span>
+                  </Link>
+                ))}
+              </nav>
+              <Dialog.Close asChild><Button variant="secondary">Close navigation</Button></Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </div>
     </div>
   );
