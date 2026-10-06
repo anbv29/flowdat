@@ -28,3 +28,33 @@ h1 { font-size: clamp(32px,3.3vw,44px); text-wrap: balance; }
 .dataset-copy p,.dataset-meta { font-size: 12px; }
 .dataset-glyph { width: 42px; height: 42px; }
 .sample-callout { padding: 22px; background: rgba(255,255,255,.45); }
+.sample-callout strong { font-size: 13px; }
+.sample-callout p { font-size: 12px; line-height: 1.6; }
+.schema-table,.preview-table { font-size: 12px; }
+.schema-table th,.preview-table th { font-size: 10px; height: 44px; }
+.schema-table td:first-child strong { font-size: 12px; }
+.semantic-label,.schema-table code,.preview-caption { font-size: 11px; }
+.profile-tabs button { font-size: 12px; height: 36px; }
+.column-search { height: 40px; }
+.column-search input { font-size: 12px; }
+.analysis-page { grid-template-columns: 210px minmax(360px,1fr) 280px; }
+.conversation-header { min-height: 78px; }
+.conversation-header h1 { font-size: 16px; }
+.conversation-scroll { padding: 30px; }
+.analysis-empty h2 { font-size: 32px; }
+.analysis-empty > p { font-size: 13px; line-height: 1.7; }
+.suggestion-list button { min-height: 46px; font-size: 12px; border-radius: 10px; }
+.question-composer { padding: 14px; border-radius: 16px; background: rgba(255,255,255,.88); }
+.question-composer textarea { font-size: 14px; line-height: 1.6; }
+.user-message { font-size: 13px; padding: 13px 16px; }
+.assistant-message { font-size: 12px; max-width: 90%; }
+.answer-heading h2 { font-size: 26px; line-height: 1.3; }
+.answer-heading { flex-wrap: wrap; }
+.answer-actions { margin-left: 42px; }
+.result-table-wrap table { font-size: 12px; font-variant-numeric: tabular-nums; }
+.result-table-wrap th { font-size: 10px; }
+.result-table-wrap td { padding: 12px; }
+.evidence-list li,.context-block p,.context-block li { font-size: 12px; line-height: 1.65; }
+.context-block h3,.rail-title { font-size: 11px; }
+.context-block pre { font-size: 11px; padding: 14px; }
+.execution-note,.mode-label { font-size: 10px; }
