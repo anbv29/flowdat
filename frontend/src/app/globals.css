@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* Workspace finish: shared surfaces, rhythm, and interaction. */
+
 :root {
   color-scheme: light;
   --canvas: #f4f1ea;

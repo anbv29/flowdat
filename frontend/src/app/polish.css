@@ -1,0 +1,30 @@
+:root { --canvas: #f5f4f0; --ink: #202638; --muted: #596275; --indigo: #535b96; --line: rgba(42,51,72,.12); }
+html { scroll-behavior: smooth; }
+body { background-image: radial-gradient(ellipse at 85% 0%,rgba(104,112,166,.08),transparent 42%); }
+::selection { color: #273063; background: #dce0f3; }
+textarea, input { caret-color: var(--indigo); }
+* { scrollbar-width: thin; scrollbar-color: #c5c9d2 transparent; }
+:focus-visible { outline: 2px solid var(--indigo); outline-offset: 4px; }
+h1 { font-size: clamp(32px,3.3vw,44px); text-wrap: balance; }
+.eyebrow { display: none; }
+.app-frame { grid-template-columns: 224px minmax(0,1fr); }
+.sidebar { padding: 30px 16px 20px; background: rgba(249,249,246,.78); }
+.brand { font-size: 18px; letter-spacing: -.035em; }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; }
+.nav-list { margin-top: 44px; gap: 7px; }
+.nav-item { min-height: 44px; font-size: 13px; border-radius: 10px; }
+.nav-item.is-active { background: #e9ebf5; box-shadow: none; }
+.topbar { background: rgba(255,255,255,.55); }
+.workspace-name { font-size: 13px; }
+.avatar { width: 34px; height: 34px; border-radius: 11px; }
+.content { padding: 48px 40px; }
+.lede { font-size: 14px; max-width: 65ch; }
+.library-panel,.profile-section,.history-panel { background: rgba(255,255,255,.72); box-shadow: 0 8px 28px rgba(35,43,65,.035); }
+.section-heading { padding: 24px; }
+.section-heading h2 { font-size: 15px; }
+.section-heading p,.count-label { font-size: 12px; }
+.dataset-row { min-height: 90px; padding: 18px; }
+.dataset-copy h3 { font-size: 14px; }
+.dataset-copy p,.dataset-meta { font-size: 12px; }
+.dataset-glyph { width: 42px; height: 42px; }
+.sample-callout { padding: 22px; background: rgba(255,255,255,.45); }
