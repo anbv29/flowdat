@@ -7,6 +7,7 @@ textarea, input { caret-color: var(--indigo); }
 :focus-visible { outline: 2px solid var(--indigo); outline-offset: 4px; }
 h1 { font-size: clamp(32px,3.3vw,44px); text-wrap: balance; }
 .eyebrow { display: none; }
+.answer-heading .eyebrow { display: block; }
 .app-frame { grid-template-columns: 224px minmax(0,1fr); }
 .sidebar { padding: 30px 16px 20px; background: rgba(249,249,246,.78); }
 .brand { font-size: 18px; letter-spacing: -.035em; }
