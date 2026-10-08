@@ -88,3 +88,33 @@ button:hover { filter: brightness(1.025); }
 @supports not (backdrop-filter: blur(1px)) { .sidebar,.library-panel,.dialog-content { background: #f8faff; } }
 @media (prefers-reduced-motion: reduce) { .content { animation: none; } .conversation-scroll { scroll-behavior: auto; } }
 @media (prefers-contrast: more) { :root { --muted: #35435a; --line: #8190a8; --glass: #fff; } }
+@media (max-width: 1100px) {
+  .app-frame { grid-template-columns: 195px minmax(0,1fr); gap: 14px; }
+  .sidebar { padding-inline: 12px; }
+  .brand { font-size: 17px; gap: 9px; }
+  .analysis-page { grid-template-columns: 155px minmax(0,1fr) 220px; }
+  .content { padding-inline: 18px; }
+  .dataset-meta { gap: 10px; }
+}
+@media (max-width: 880px) {
+  .analysis-page { display: block; position: relative; padding-top: 46px; }
+  .analysis-panel { height: calc(100dvh - 134px); }
+  .mobile-workspace-tabs { position: absolute; top: 0; height: 46px; background: rgba(255,255,255,.75); border-color: var(--line); backdrop-filter: blur(20px); }
+  .mobile-workspace-tabs button { font-size: 12px; }
+  .mobile-workspace-tabs button.is-active { color: #334b9e; background: rgba(66,91,192,.05); }
+  .context-block { padding: 20px 0; }
+}
+@media (max-width: 760px) {
+  .app-frame { display: block; padding: 10px; }
+  .topbar { height: 54px; }
+  .content { padding: 28px 10px 40px; }
+  .page-heading { align-items: stretch; gap: 20px; }
+  .page-heading > button { align-self: start; }
+  .dataset-row { padding: 16px 10px; gap: 12px; }
+  .dataset-meta { font-size: 11px; }
+  .analysis-page { height: calc(100dvh - 74px); border-radius: 16px; }
+  .analysis-panel { height: calc(100dvh - 120px); }
+  .conversation-header { padding-inline: 20px; }
+  .question-composer { margin: 0 12px 12px; }
+  .evaluation-runner,.sample-callout { padding: 18px; }
+}
