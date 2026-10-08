@@ -28,3 +28,33 @@ h1 { font-family: var(--font-sans),sans-serif; font-weight: 600; font-size: clam
 .dataset-row:hover { background: rgba(255,255,255,.86); }
 .dataset-glyph { width: 44px; height: 44px; border: 1px solid rgba(66,91,192,.1); background: #edf0fc; border-radius: 12px; color: #5268b6; }
 .dataset-copy p { max-width: 45ch; line-height: 1.6; }
+.sample-callout { border: 1px solid rgba(255,255,255,.85); background: rgba(255,255,255,.45); border-radius: 16px; margin-top: 20px; padding: 24px; }
+.sample-callout strong { font-size: 14px; font-weight: 600; }
+.sample-callout p { font-size: 12px; line-height: 1.7; }
+.glass-section,.metric-card,.evaluation-metric { border-color: rgba(255,255,255,.85); background: var(--glass); box-shadow: var(--glass-shadow); border-radius: 16px; }
+.metric-card { padding: 22px; }
+.metric-card strong { font-size: 24px; font-variant-numeric: tabular-nums; }
+.schema-table th,.preview-table th,.result-table-wrap th { background: rgba(237,241,249,.7); color: #526079; }
+.schema-table td,.preview-table td { height: 54px; border-color: rgba(58,76,111,.08); }
+.profile-toolbar { padding: 20px 24px; }
+.profile-tabs { border: 0; padding: 4px; border-radius: 11px; background: rgba(60,80,128,.06); }
+.profile-tabs button { border-radius: 8px; }
+.profile-tabs button.is-active { background: white; color: #334b9e; box-shadow: 0 2px 6px rgba(33,52,90,.06); }
+.column-search { border-color: rgba(58,76,111,.12); background: rgba(255,255,255,.72); }
+.analysis-page { height: calc(100dvh - 88px); border-radius: 20px; border: 1px solid rgba(255,255,255,.85); background: rgba(255,255,255,.55); box-shadow: var(--glass-shadow); grid-template-columns: 190px minmax(0,1fr) 265px; }
+.analysis-panel { background: transparent; }
+.source-rail,.context-rail { padding: 24px 16px; border-color: rgba(58,76,111,.09); }
+.conversation-panel { background: rgba(255,255,255,.3); }
+.conversation-header { min-height: 72px; padding: 0 28px; border-color: rgba(58,76,111,.09); background: rgba(255,255,255,.6); backdrop-filter: blur(20px); }
+.conversation-header h1 { font-family: var(--font-sans),sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -.02em; }
+.conversation-scroll { padding: 28px; scroll-behavior: smooth; }
+.analysis-empty h2 { font-family: var(--font-sans),sans-serif; font-size: 27px; font-weight: 550; line-height: 1.25; }
+.analysis-empty > span { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,.8); }
+.suggestion-list { gap: 9px; margin-top: 28px; }
+.suggestion-list button { min-height: 48px; padding: 12px 15px; background: rgba(255,255,255,.72); border-color: rgba(255,255,255,.9); }
+.question-composer { margin: 0 24px 24px; padding: 14px; border: 1px solid rgba(255,255,255,.95); background: rgba(255,255,255,.85); border-radius: 18px; box-shadow: 0 8px 26px rgba(34,54,93,.09); backdrop-filter: blur(24px); }
+.question-composer:focus-within { box-shadow: 0 8px 26px rgba(34,54,93,.09),0 0 0 2px rgba(66,91,192,.16); }
+.question-composer textarea { padding: 4px; font-size: 13px; }
+.context-block { padding: 16px 0; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; }
+.context-block pre { border: 1px solid rgba(255,255,255,.85); background: rgba(235,240,249,.7); border-radius: 10px; font-size: 10px; }
+.rail-title { color: #59677e; letter-spacing: .04em; margin-bottom: 16px; }
