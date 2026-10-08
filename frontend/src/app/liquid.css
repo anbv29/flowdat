@@ -28,6 +28,36 @@ h1 { font-family: var(--font-sans),sans-serif; font-weight: 600; font-size: clam
 .dataset-row:hover { background: rgba(255,255,255,.86); }
 .dataset-glyph { width: 44px; height: 44px; border: 1px solid rgba(66,91,192,.1); background: #edf0fc; border-radius: 12px; color: #5268b6; }
 .dataset-copy p { max-width: 45ch; line-height: 1.6; }
+.page-heading { flex-wrap: wrap; }
+.page-heading > div:first-child { flex: 1 1 320px; min-width: 0; }
+.page-heading > button { flex: 0 0 auto; }
+.evaluation-runner { flex: 0 1 auto; max-width: 100%; align-items: end; flex-wrap: wrap; }
+.evaluation-runner label { min-width: 0; flex: 1 1 190px; }
+.evaluation-runner label span { white-space: nowrap; }
+.evaluation-runner select { width: 100%; min-width: 0; height: 40px; }
+.evaluation-runner > button { flex: 0 0 auto; }
+.dataset-titlebar { flex-wrap: wrap; }
+.dataset-titlebar > div:first-child { min-width: 0; flex: 1 1 300px; }
+.dataset-actions { flex-wrap: wrap; }
+.answer-heading > div:not(.answer-actions) { flex: 1 1 200px; }
+.answer-actions { margin-left: 0; flex-wrap: wrap; }
+.history-toolbar { flex-wrap: wrap; gap: 12px; padding-block: 16px; }
+.history-toolbar label { min-width: 0; flex: 1 1 240px; }
+.history-toolbar > span { white-space: nowrap; }
+.history-row > div { min-width: 0; overflow-wrap: anywhere; }
+.history-row > a { white-space: nowrap; }
+.sample-callout > div { min-width: 0; }
+.profile-toolbar { flex-wrap: wrap; }
+.profile-tabs { flex-shrink: 0; }
+.evaluation-panel-heading > div { min-width: 0; }
+.failure-row strong,.failure-row small { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .page-heading > div:first-child { flex-basis: auto; }
+  .evaluation-runner { width: 100%; align-items: stretch; }
+  .evaluation-runner label { flex-basis: auto; }
+  .history-row { grid-template-columns: auto minmax(0,1fr); }
+  .history-row > a { grid-column: 2; }
+}
 .sample-callout { border: 1px solid rgba(255,255,255,.85); background: rgba(255,255,255,.45); border-radius: 16px; margin-top: 20px; padding: 24px; }
 .sample-callout strong { font-size: 14px; font-weight: 600; }
 .sample-callout p { font-size: 12px; line-height: 1.7; }
