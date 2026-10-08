@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Clock3, Database, Rows3 } from "lucide-react";
+import { ArrowRight, Clock3, Database, Rows3, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,10 @@ export function DatasetLibrary() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [sampleStatus, setSampleStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [search, setSearch] = useState("");
+  const visibleDatasets = datasets.filter((dataset) =>
+    `${dataset.name} ${dataset.original_filename}`.toLowerCase().includes(search.toLowerCase()),
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,11 +49,16 @@ export function DatasetLibrary() {
       <div className="page-heading">
         <div>
           <p className="eyebrow">Workspace</p>
-          <h1>Your datasets</h1>
+          <h1>Your data, a clearer view.</h1>
           <p className="lede">Upload a source, check its shape and quality, then begin an analysis.</p>
         </div>
         <UploadDialog onUploaded={addDataset} />
       </div>
+
+      <label className="library-search">
+        <Search size={16} aria-hidden="true" />
+        <input aria-label="Search datasets" placeholder="Find a dataset…" value={search} onChange={(event) => setSearch(event.target.value)} />
+      </label>
 
       <section className="library-panel" aria-labelledby="recent-heading">
         <div className="section-heading">
@@ -68,8 +77,11 @@ export function DatasetLibrary() {
           {status === "ready" && datasets.length === 0 && (
             <div className="library-message"><strong>No datasets yet</strong><span>Upload a source or begin with the ecommerce sample below.</span></div>
           )}
-          {datasets.map((dataset) => (
-            <article className="dataset-row" key={dataset.name}>
+          {status === "ready" && datasets.length > 0 && visibleDatasets.length === 0 && (
+            <div className="library-message"><strong>No matching datasets</strong><span>Try a different name or filename.</span></div>
+          )}
+          {visibleDatasets.map((dataset) => (
+            <article className="dataset-row" key={dataset.id}>
               <span className="dataset-glyph"><Database size={19} /></span>
               <div className="dataset-copy">
                 <h3>{dataset.name}</h3>

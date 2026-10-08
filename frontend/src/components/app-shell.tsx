@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {navigation.map(({ label, href, icon: Icon }) => {
             const active = href === "/" ? pathname === "/" || pathname.startsWith("/datasets/") : pathname.startsWith(href);
             return (
-            <Link className={active ? "nav-item is-active" : "nav-item"} href={href} key={label}>
+            <Link className={active ? "nav-item is-active" : "nav-item"} href={href} key={label} aria-current={active ? "page" : undefined}>
               <Icon size={17} strokeWidth={1.8} />
               <span>{label}</span>
             </Link>
@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Button className="mobile-menu" variant="ghost" size="small" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>
             <PanelLeft size={18} />
           </Button>
-          <span className="workspace-name">Personal workspace</span>
+          <span className="workspace-name">{pathname.startsWith("/analysis") ? "Dataset analysis" : pathname.startsWith("/history") ? "Query history" : pathname.startsWith("/evaluations") ? "Evaluation suite" : "Personal workspace"}</span>
           <div className="avatar" aria-label="Current user">
             AP
           </div>
