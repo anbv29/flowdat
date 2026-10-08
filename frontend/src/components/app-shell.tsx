@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, Database, History, PanelLeft, Sparkles } from "lucide-react";
+import { BarChart3, Database, History, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 
 const navigation = [
   { label: "Datasets", href: "/", icon: Database },
-  { label: "Analysis", href: "/analysis", icon: Sparkles },
   { label: "History", href: "/history", icon: History },
   { label: "Evaluations", href: "/evaluations", icon: BarChart3 },
 ];
